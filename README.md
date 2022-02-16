@@ -1,6 +1,6 @@
 # 42-cub3d
 Devil with that deadlines and your f-ing work-life balance, Karen
-Что по (сабжу)[en.subject.pdf](https://github.com/lavrenovamaria/42-cub3d/files/8080052/en.subject.pdf)
+Что по [сабжу](https://github.com/lavrenovamaria/42-cub3d/files/8080052/en.subject.pdf)
 
 Из чего состоит конфигурационный файл(папка maps, расширение .cub):
 ```
