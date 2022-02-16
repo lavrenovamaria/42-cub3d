@@ -59,7 +59,7 @@ opengl: это устаревшая версия библиотеки MiniLibX.
 #### ```mlx_new_image(void mlx_ptr, int width, int height);```
 Введите размер изображения для ввода по ширине и высоте.
 Создаёт буфер для всех пикселей изображения и поместит все данные пикселей в окно через буфер. Типа того.
-#### ```mlx_get_data_addr(void img_ptr, int bits_per_pixel, int size_line, int *endian);```
+#### ```mlx_get_data_addr(void img_ptr, int bits_per_pixel, int line_length, int *endian);```
 Он получает адрес памяти для ввода изображения. Введите возвращаемое значение для изображения, созданного в ```*img_ptr```. Вы можете узнать способ хранения данных[(прямой или обратный порядок байтов)](https://russianblogs.com/article/5102954868/) через ```*endian```.
 Как узнать big или little endian у вас на компуктере:
 ```
@@ -77,3 +77,4 @@ int main ()
   return 0;
 }
 ```
+```*bits_per_pixel``` — количество битов, необходимых для представления одного пикселя. [Жуткая ридмишка по цветам да ещё и на корейском](https://github.com/p-eye/cub3d_texturing/blob/master/1.mlx_get_data_addr.md)
