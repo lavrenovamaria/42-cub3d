@@ -1,6 +1,6 @@
 # 42-cub3d
 Devil with that deadlines and your f-ing work-life balance, Karen \
-Что по [сабжу](https://github.com/lavrenovamaria/42-cub3d/files/8080052/en.subject.pdf): \
+Что по [сабжу](https://github.com/lavrenovamaria/42-cub3d/files/8080052/en.subject.pdf):
 1. Разрешенные функции - open, close, read, write, printf, malloc, free, perror, strerror, exit, все функции либы math и либы minilibx
 2. Клавиши со стрелками влево и вправо позволяют повернуть взор влево-вправо в лабиринте
 3. Клавиши A и D позволяют переместиться вправо-влево в лабиринте(приставной шаг)
