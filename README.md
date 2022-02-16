@@ -85,19 +85,19 @@ int main ()
 typedef struct s_image {
 	void	*img;
 	char	*data;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
+	int	bits_per_pixel;
+	int	line_length;
+	int	endian;
 }				t_image;
 
 int main()
 {
 	void	*mlx;
 	void	*win;
-	int		width;
-	int		height;
-	int		i;
-	int		j;
+	int	width;
+	int	height;
+	int	i;
+	int	j;
 	t_image	image;
 
 	width = 200;
