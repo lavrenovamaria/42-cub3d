@@ -88,7 +88,7 @@ typedef struct s_image {
 	int	bits_per_pixel;
 	int	line_length;
 	int	endian;
-}				t_image;
+}		t_image;
 
 int main()
 {
@@ -144,9 +144,9 @@ int main()
 	t_image	image;
 
 	mlx = mlx_init();
-  win = mlx_new_window(mlx, 500, 500, "hop-hey-lalaley");
-  image.img = mlx_xpm_file_to_image(mlx, "./fotka_kota.xpm", &width, &height);
-  mlx_put_image_to_window(mlx, win, image.img, 30, 30);
+  	win = mlx_new_window(mlx, 500, 500, "hop-hey-lalaley");
+  	image.img = mlx_xpm_file_to_image(mlx, "./fotka_kota.xpm", &width, &height);
+  	mlx_put_image_to_window(mlx, win, image.img, 30, 30);
 	mlx_loop(mlx);
 	return(0);
 ```
