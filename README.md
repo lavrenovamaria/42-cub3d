@@ -128,10 +128,10 @@ int main()
 typedef struct s_image {
 	void	*img;
 	char	*data;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
-}				t_image;
+	int	bits_per_pixel;
+	int	line_length;
+	int	endian;
+}		t_image;
 
 int main()
 {
