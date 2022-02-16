@@ -137,10 +137,10 @@ int main()
 {
 	void	*mlx;
 	void	*win;
-	int		width;
-	int		height;
-	int		i;
-	int		j;
+	int	width;
+	int	height;
+	int	i;
+	int	j;
 	t_image	image;
 
 	mlx = mlx_init();
