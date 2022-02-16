@@ -49,7 +49,7 @@ mms: это самая последняя версия библиотеки Mini
 opengl: это устаревшая версия библиотеки MiniLibX.
 
 #### ```void *mlx_init();```
-Установка соединения между программой и графической системой. Никаких параметров не требуется для неё. Вернет идентификатор void*, используемый для дальнейших вызовов библиотечных подпрограмм.
+Установка соединения между программой и графической системой. Никаких параметров не требуется для неё. Вернет идентификатор void*, используемый для дальнейших вызовов библиотечных подпрограмм. Это соединение должно быть создано до того, как можно будет использовать другие функции mlx.
 #### ```mlx_new_window(void mlx_ptr, int size_x, int size_y, char *title);```
 Функция, создающая окно. В mlx_ptr будет местоположение экземпляра MLX, возвращенного функцией mlx_init(). Параметры ширины и высоты определяют размер окна, ```char *title``` указывает имя окна в заголовке
 #### ```int mlx_destroy_window(void mlx_ptr, void win_ptr);```
@@ -80,13 +80,81 @@ int main ()
 ```*bits_per_pixel``` — количество битов, необходимых для представления одного пикселя. [Жуткая ридмишка по цветам да ещё и на корейском(everybody gon' respect the reader, but the one in front of the readme lives forever)](https://github.com/p-eye/cub3d_texturing/blob/master/1.mlx_get_data_addr.md)
 #### ```int mlx_put_image_to_window(void mlx_ptr, void win_ptr, void *img_ptr, int x, int y);```
 Данные о пикселях, полученные в пространстве изображения из позиции (x, y) окна, выводятся в окне. Введите значение, возвращаемое функцией mlx_new_window, в ```*win_ptr.``` Введите возвращаемое значение для изображения, созданного в ```*img_ptr.```
+Рубрика "эксперименты"(вот этот код ниже выведет нам белый квадратик):
+```
+typedef struct s_image {
+	void	*img;
+	char	*data;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}				t_image;
+
+int main()
+{
+	void	*mlx;
+	void	*win;
+	int		width;
+	int		height;
+	int		i;
+	int		j;
+	t_image	image;
+
+	width = 200;
+	height = 200;
+	mlx = mlx_init();
+	win = mlx_new_window(mlx, 500, 500, "hop-hey-lalaley");
+	image.img = mlx_new_image(mlx, width, height);
+	image.data = (int *)mlx_get_data_addr(image.img, &image.bits_per_pixel, &image.line_length, &image.endian);
+	i = 0;
+	while (i < height)
+	{
+		j = 0;
+		while (j < width)
+		{
+			image.data[i * width + j] = 0xFFFFFF;
+			j++;
+		}
+		i++;
+	}
+	mlx_put_image_to_window(mlx, win, image.img, 30, 30);
+	mlx_loop(mlx);
+	return(0);
+}
+```
 #### ```mlx_xpm_file_to_image (void mlx_ptr, char filename, int width, int *height);```
-Эта функция позволяет применить файл xpm в качестве текстуры к данным изображения. Получите размер файла xpm через переменные ширины и высоты. В переменной ```*filename``` введите имя xpm-файла, который будет использоваться в качестве изображения.
+Эта функция позволяет применить файл xpm в качестве текстуры к данным изображения. Получите размер файла xpm через переменные ширины и высоты. В переменной ```*filename``` введите имя xpm-файла, который будет использоваться в качестве изображения. Если вы передаете имя файла и адрес переменной типа int, файл xpm преобразуется в изображение и возвращается указатель на изображение.
+```
+typedef struct s_image {
+	void	*img;
+	char	*data;
+	int		bits_per_pixel;
+	int		line_length;
+	int		endian;
+}				t_image;
+
+int main()
+{
+	void	*mlx;
+	void	*win;
+	int		width;
+	int		height;
+	int		i;
+	int		j;
+	t_image	image;
+
+	mlx = mlx_init();
+  win = mlx_new_window(mlx, 500, 500, "hop-hey-lalaley");
+  image.img = mlx_xpm_file_to_image(mlx, "./fotka_kota.xpm", &width, &height);
+  mlx_put_image_to_window(mlx, win, image.img, 30, 30);
+	mlx_loop(mlx);
+	return(0);
+```
 #### ```int mlx_key_hook(void win_ptr, int ( funct_ptr)(), void param);```
 ```*win_ptr``` - введите значение, возвращаемое функцией mlx_new_window (значение, указывающее на конкретное окно). (```*funct_ptr```)() : введите значение указателя используемой функции. (Кнопка, нажатая пользовательским значением int, используется как первый параметр введенной функции). \
 param - ведите переменные, которые будут использоваться в функции (если нужно использовать много переменных, сгруппируйте их в структуру и введите). В конце должна использоваться функция mlx_loop .
 #### ```int mlx_loop(void *mlx_ptr);```
-Он бесконечно зацикливается и ждет, пока не произойдет событие, произвольно определенное в программе.
+Это функция, которая бесконечно зацикливается и ожидает события от клавиатуры или мыши. 
 #### ```int mlx_hook(void win_ptr, int x_event, int x_mask, int (funct)(), void *param);```
 x_event - событие, определенное в библиотеке X11. Введите событие, которое вы хотите сгенерировать, как тип int в качестве параметра функции mlx_hook. x_mask - обычно вводится 0(почему хз). Отличие от mlx_key_hook: в mlx_key_hook событие происходит временно при каждом нажатии клавиши, но в mlx_hook событие повторяется бесконечно, пока клавиша нажата.
 #### ```int mlx_loop_hook(void mlx_ptr, int ( funct_ptr)(), void *param);```
@@ -94,5 +162,5 @@ x_event - событие, определенное в библиотеке X11. 
 ### Как тебя парсить будем? Заметки
 1. Получаем файл карты в качестве аргумента основной функции
 2. Файл карты парсится в чаровскую переменную построчно с помощью функции get_next_line.
-3. 
+3. ???
 
