@@ -160,7 +160,16 @@ x_event - событие, определенное в библиотеке X11. 
 #### ```int mlx_loop_hook(void mlx_ptr, int ( funct_ptr)(), void *param);```
 Функция, введенная в качестве параметра в ```(*funct_ptr)()```, выполняется бесконечно без условия возникновения события.
 ### Как тебя парсить будем? Заметки
-1. Получаем файл карты в качестве аргумента основной функции
-2. Файл карты парсится в чаровскую переменную построчно с помощью функции get_next_line.
-3. ???
+1. ???
+Как-то дефайним
+```
+ # define NORTH 0
+ # define SOUTH 1
+ # define WEST 2
+ # define EAST 3
+ # define SPRITE 4
+ # define RESOLUTION 5
+ # define FLOOR_COLOR 6
+ # define CEILING_COLOR 7
+```
 
