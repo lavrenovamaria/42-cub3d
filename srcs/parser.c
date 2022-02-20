@@ -95,12 +95,12 @@ void	exit_failure(t_data *data, char *error)
 
 int parser(t_data *data, char *filename)
 {
-	
+
 	if(data->fd = open(filename, O_RDONLY) < 0 || !isformat(filename, ".cub"))
 		exit_failure(data, "Sorry, filename could not be found or extension is not valid");
 	while (get_next_line(data->fd, data->line))
 	{
-
+		
 	}
 	return(1);
 }
@@ -108,7 +108,7 @@ int parser(t_data *data, char *filename)
 int main(int ac, char **av)
 {
 	t_data data;
-	
+
 	if(ac != 2)
 		exit_failure(&data, "Wrong number of arguments");
 	ft_bzero(&data, sizeof(t_data));
