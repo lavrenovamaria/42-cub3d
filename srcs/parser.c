@@ -62,23 +62,20 @@ int		isformat(char *s1, char *s2)
 	s2_ln = ft_strlen(s2);
 	return (!ft_strcmp(s1 + (s1_ln - s2_ln), s2));
 }
-
-// void	init_data(t_cub *cub)
-// {
-// 	cub->NO = NULL;
-// 	cub->SO = NULL;
-// 	cub->WE = NULL;
-// 	cub->EA = NULL;
-// 	cub->F[0] = -1;
-// 	cub->F[1] = -1;
-// 	cub->F[2] = -1;
-// 	cub->C[0] = -1;
-// 	cub->C[1] = -1;
-// 	cub->C[2] = -1;
-// 	cub->map = NULL;
-// 	cub->id_done = false;
-// 	cub->map_done = false;
-// }
+//указатели на название NO/SO/WE/EA и вариации цвета пола и потолка
+void	init_data(t_data *data)
+{
+	data->NO = NULL;
+	data->SO = NULL;
+	data->WE = NULL;
+	data->EA = NULL;
+	data->F[0] = 0;
+	data->F[1] = 0;
+	data->F[2] = 0;
+	data->C[0] = 0;
+	data->C[1] = 0;
+	data->C[2] = 0;
+}
 
 void	exit_failure(t_data *data, char *error)
 {
@@ -93,16 +90,28 @@ void	exit_failure(t_data *data, char *error)
 	exit(0);
 }
 
-int parser(t_data *data, char *filename)
+t_data *parser(t_data *data, char *filename)
 {
-
 	if(data->fd = open(filename, O_RDONLY) < 0 || !isformat(filename, ".cub"))
 		exit_failure(data, "Sorry, filename could not be found or extension is not valid");
+	ft_bzero(&data, sizeof(t_data));
+	init_data(data);
 	while (get_next_line(data->fd, data->line))
 	{
-		
+		if(data->id_full == false && id_of(data, data->line))
+		{
+			free(data->line);
+			return (NULL);
+		}
+		else if(data->id_full == true && map(data, data->line))
+		{
+			free(data->line);
+			return (NULL);
+		}
+		print_data(data->line);
+		free(data->line);
 	}
-	return(1);
+	return(data);
 }
 
 int main(int ac, char **av)
@@ -111,7 +120,6 @@ int main(int ac, char **av)
 
 	if(ac != 2)
 		exit_failure(&data, "Wrong number of arguments");
-	ft_bzero(&data, sizeof(t_data));
 	return(0);
 }
 
