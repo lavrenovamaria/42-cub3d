@@ -53,6 +53,55 @@ int	ft_strcmp(const char *s1, const char *s2)
 	//int found = strcmp(argv[1] + slen - xlen, ext) == 0;
 
 /////////////////////////
+
+
+// void print_data(t_cub *cub)
+// {
+// 	t_map *tmp;
+// 	printf("________________________________________\n");
+// 	if (cub == NULL)
+// 	{
+// 		printf("Data struct not allocated\n");
+// 		printf("________________________________________\n");
+// 		return ;
+// 	}
+// 	if (cub->NO != NULL)
+// 		printf("NO : %s\n", cub->NO);
+// 	else
+// 		printf("NO : NULL\n");
+// 	if (cub->SO != NULL)
+// 		printf("SO : %s\n", cub->SO);
+// 	else
+// 		printf("SO : NULL\n");
+// 	if (cub->WE != NULL)
+// 		printf("WE : %s\n", cub->WE);
+// 	else
+// 		printf("WE : NULL\n");
+// 	if (cub->EA != NULL)
+// 		printf("EA : %s\n", cub->EA);
+// 	else
+// 		printf("EA : NULL\n");
+// 	printf("Floor RGB : %d %d %d\n", cub->F[0], cub->F[1], cub->F[2]);
+// 	printf("Ceiling RGB : %d %d %d\n", cub->C[0], cub->C[1], cub->C[2]);
+// 	if (cub->id_done == true)
+// 		printf("ID done and valid? : Yes\n");
+// 	else
+// 		printf("ID done and valid? : No\n");
+// 	if (cub->map_done == true)
+// 		printf("Map done and valid? : Yes\n");
+// 	else
+// 		printf("Map done and valid? : No\n");
+// 	tmp = cub->map;
+// 	if (tmp == NULL)
+// 		printf("Nothing stored in map\n");
+// 	while(tmp != NULL)
+// 	{
+// 		printf("x = %d\t y = %d\t o = %c\n", tmp->x, tmp->y, tmp->o);
+// 		tmp = tmp->next;
+// 	}
+// 	printf("________________________________________\n");
+// }
+
 int		isformat(char *s1, char *s2)
 {
 	size_t	s1_ln;
@@ -92,24 +141,33 @@ void	exit_failure(t_data *data, char *error)
 
 t_data *parser(t_data *data, char *filename)
 {
+	char *one_line;
+	int i = -1;
+	char *tmp_map;
+	char *map = 0;
+
 	if(data->fd = open(filename, O_RDONLY) < 0 || !isformat(filename, ".cub"))
 		exit_failure(data, "Sorry, filename could not be found or extension is not valid");
 	ft_bzero(&data, sizeof(t_data));
 	init_data(data);
 	while (get_next_line(data->fd, data->line))
 	{
-		if(data->id_full == false && id_of(data, data->line))
+		if (*one_line != '\0' && ++i <= CEILING_COLOR)
+			data->map->info_map[check_gnl(data, one_line)] = ft_strdup(one_line);
+		else if (*one_line != '\0')
 		{
-			free(data->line);
-			return (NULL);
+			tmp_map = map;
+			if (!map)
+				map = ft_strdup(one_line);
+			else
+				map = ft_strjoin(map, one_line);
+			free(tmp_map);
+			data->map->cols++;
 		}
-		else if(data->id_full == true && map(data, data->line))
-		{
-			free(data->line);
-			return (NULL);
-		}
-		print_data(data->line);
+		free(one_line);
 		free(data->line);
+		print_data(data->line);
+		split_map_get_rows(data, map);
 	}
 	return(data);
 }

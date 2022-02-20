@@ -8,12 +8,21 @@
 # define	WIDTH				1280
 # define	HEIGHT				1024
 
+# define NORTH 0
+# define SOUTH 1
+# define WEST 2
+# define EAST 3
+# define FLOOR_COLOR 4
+# define CEILING_COLOR 5
+
 typedef struct	s_map
 {
 	int			*rows;
 	int			cols;
 	char		**map;
-	char 		**map_tmp;
+	char 		**map_mask;
+	char 		*info_map[8];
+	int			info_check[8];
 
 }				t_map;
 
@@ -34,11 +43,9 @@ typedef struct	s_data
 {
 	int				fd;
 	char			*line;
-	t_map			map;
+	t_map			*map;
 	t_vars 			vars;
 	t_frame			frame;
-	bool 			id_full;
-	bool 			map_full;
 	int				width;
 	int				height;
 	char			*NO;
@@ -48,12 +55,3 @@ typedef struct	s_data
 	int				F[3];
 	int				C[3];
 }				t_data;
-
-# define NORTH 0
-# define SOUTH 1
-# define WEST 2
-# define EAST 3
-# define SPRITE 4
-# define RESOLUTION 5
-# define FLOOR_COLOR 6
-# define CEILING_COLOR 7
