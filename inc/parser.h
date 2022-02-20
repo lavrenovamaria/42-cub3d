@@ -20,7 +20,7 @@ typedef struct	s_map
 	int			*rows;
 	int			cols;
 	char		**map;
-	char 		**map_mask;
+	int 		**map_mask;
 	char 		*info_map[8];
 	int			info_check[8];
 

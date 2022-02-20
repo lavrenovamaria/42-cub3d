@@ -155,6 +155,109 @@ size_t	ft_strlcat(char *dst, const char *src, size_t size)
 	//size_t xlen = strlen(ext);
 	//size_t slen = strlen(argv[1]);
 	//int found = strcmp(argv[1] + slen - xlen, ext) == 0;
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	char	*str;
+
+	if (s == NULL)
+		return (NULL);
+	if (start >= (unsigned int)ft_strlen(s))
+		len = 0;
+	if (len <= (unsigned int)ft_strlen(s))
+		str = ft_calloc(len + 1, sizeof(char));
+	else
+		str = ft_calloc(ft_strlen(s) + 1, sizeof(char));
+	if (str == NULL)
+		return (NULL);
+	ft_strlcpy(str, (s + start), len + 1);
+	return (str);
+}
+size_t	ft_nbr_word(const char *str, char c)
+{
+	size_t	count;
+
+	count = 0;
+	while (*str)
+	{
+		while (*str == c)
+			str++;
+		if (*str != c && *str != '\0')
+			count++;
+		while (*str != c && *str)
+			str++;
+	}
+	return (count);
+}
+
+void	ft_free_mem(char **mem)
+{
+	int	i;
+
+	i = 0;
+	while (mem[i])
+	{
+		free(mem[i]);
+		i++;
+	}
+	free(mem);
+}
+
+size_t	ft_word_len(const char *str, char c)
+{
+	int	i;
+
+	i = 0;
+	while (*str == c)
+		str++;
+	while (*str && *str != c)
+	{
+		i++;
+		str++;
+	}
+	return (i);
+}
+
+char	**ft_pre_split(char const *s, char c)
+{
+	size_t	i;
+	size_t	j;
+	char	**str;
+
+	if (!s)
+		return (NULL);
+	i = ft_nbr_word(s, c);
+	str = ft_calloc(i + 1, sizeof(char *));
+	if (str == NULL)
+		return (NULL);
+	j = 0;
+	while (i > j)
+	{
+		while (*s == c)
+			s++;
+		str[j] = ft_substr (s, 0, ft_word_len (s, c));
+		if (str[j++] == NULL)
+		{
+			ft_free_mem(str);
+			return (NULL);
+		}
+		s += ft_word_len (s, c);
+	}
+	str[j] = NULL;
+	return (str);
+}
+
+char	**ft_split(char const *s, char c)
+{
+	char	**str;
+
+	if (!s)
+		return (NULL);
+	str = ft_pre_split (s, c);
+	if (!str)
+		return (NULL);
+	return (str);
+}
+
 
 /////////////////////////
 
@@ -288,21 +391,21 @@ void	exit_failure(t_data *data, char *error)
 	exit(0);
 }
 
-// void	split_map_get_rows(t_data *data, char *map)
-// {
-// 	int	i;
+void	split_map_get_rows(t_data *data, char *map)
+{
+	int	i;
 
-// 	i = -1;
-// 	data->map->rows = (int*)var_malloc(sizeof(int) * data->map->cols);
-// 	data->map = ft_split(map, '\n');
-// 	while (++i < info->cols)
-// 		data->map->rows[i] = (int)ft_strlen(data->map[i]);
-// 	i = -1;
-// 	data->map->map_mask = (int**)var_malloc(sizeof(int*) * data->map->cols);
-// 	while (++i < data->map->cols)
-// 		info->map_mask[i] = (int*)var_malloc(sizeof(int) * data->map->rows[i]);
-// 	free(map);
-// }
+	i = -1;
+	data->map->rows = (int*)var_malloc(sizeof(int) * data->map->cols);
+	data->map->map = ft_split(map, '\n');
+	while (++i < data->map->cols)
+		data->map->rows[i] = (int)ft_strlen(data->map->map[i]);
+	i = -1;
+	data->map->map_mask = (int**)var_malloc(sizeof(int*) * data->map->cols);
+	while (++i < data->map->cols)
+		data->map->map_mask[i] = (int*)var_malloc(sizeof(int) * data->map->rows[i]);
+	free(map);
+}
 
 t_data *parser(t_data *data, char *filename)
 {
@@ -330,7 +433,7 @@ t_data *parser(t_data *data, char *filename)
 			data->map->cols++;
 		}
 		free(data->line);
-		//split_map_get_rows(data, map);
+		split_map_get_rows(data, map);
 		print_data(data);
 	}
 	return(data);
