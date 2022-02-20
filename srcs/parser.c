@@ -339,9 +339,12 @@ t_data *parser(t_data *data, char *filename)
 int main(int ac, char **av)
 {
 	t_data data;
+	char *file = av[1];
 
 	if(ac != 2)
 		exit_failure(&data, "Wrong number of arguments");
+	if(parser(&data, file))
+		printf("yes");
 	return(0);
 }
 
