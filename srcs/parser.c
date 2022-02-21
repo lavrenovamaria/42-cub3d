@@ -264,7 +264,6 @@ char	**ft_split(char const *s, char c)
 
 void print_data(t_data *data)
 {
-	t_map *tmp;
 	printf("________________________________________\n");
 	if (data == NULL)
 	{
@@ -290,26 +289,11 @@ void print_data(t_data *data)
 		printf("EA : NULL\n");
 	printf("Floor RGB : %d %d %d\n", data->F[0], data->F[1], data->F[2]);
 	printf("Ceiling RGB : %d %d %d\n", data->C[0], data->C[1], data->C[2]);
-	int i = 0;
-	while (data->map.map[i++])
+	int i = -1;
+	while (data->map.map[++i])
 	{
 		printf("%s\n", data->map.map[i]);
 	}
-	// if (cub->id_done == true)
-	// 	printf("ID done and valid? : Yes\n");
-	// else
-	// 	printf("ID done and valid? : No\n");
-	// if (cub->map_done == true)
-	// 	printf("Map done and valid? : Yes\n");
-	// else
-	// 	printf("Map done and valid? : No\n");
-	// tmp = data->map;
-	// if (tmp == NULL)
-	// 	printf("Nothing stored in map\n");
-	// while(tmp != NULL)
-	// {
-	// 	printf("x = %d\t y = %d\t o = %c\n", tmp->x, tmp->y, tmp->o);
-	// }
 	printf("________________________________________\n");
 }
 
@@ -340,19 +324,19 @@ int		overlap_error(t_data *data, int type)
 	return (type - 1);
 }
 
-int		check_gnl(t_data *data)
+int		check_gnl(t_data *data, char *one_line)
 {
-	if (!ft_strncmp(data->line, "NO ", 3))
+	if (!ft_strncmp(one_line, "NO ", 3))
 		return (overlap_error(data, NORTH));
-	else if (!ft_strncmp(data->line, "SO ", 3))
+	else if (!ft_strncmp(one_line, "SO ", 3))
 		return (overlap_error(data, SOUTH));
-	else if (!ft_strncmp(data->line, "WE ", 3))
+	else if (!ft_strncmp(one_line, "WE ", 3))
 		return (overlap_error(data, WEST));
-	else if (!ft_strncmp(data->line, "EA ", 3))
+	else if (!ft_strncmp(one_line, "EA ", 3))
 		return (overlap_error(data, EAST));
-	else if (!ft_strncmp(data->line, "F ", 2))
+	else if (!ft_strncmp(one_line, "F ", 2))
 		return (overlap_error(data, FLOOR_COLOR));
-	else if (!ft_strncmp(data->line, "C ", 2))
+	else if (!ft_strncmp(one_line, "C ", 2))
 		return (overlap_error(data, CEILING_COLOR));
 	else
 		error_exit("invalid map info");
@@ -368,20 +352,6 @@ int		isformat(char *s1, char *s2)
 	s2_ln = ft_strlen(s2);
 	return (!ft_strcmp(s1 + (s1_ln - s2_ln), s2));
 }
-//указатели на название NO/SO/WE/EA и вариации цвета пола и потолка
-// void	init_data(t_data *data)
-// {
-// 	data->NO = NULL;
-// 	data->SO = NULL;
-// 	data->WE = NULL;
-// 	data->EA = NULL;
-// 	data->F[0] = 0;
-// 	data->F[1] = 0;
-// 	data->F[2] = 0;
-// 	data->C[0] = 0;
-// 	data->C[1] = 0;
-// 	data->C[2] = 0;
-// }
 
 void	exit_failure(t_data *data, char *error)
 {
@@ -412,6 +382,21 @@ void	split_map_get_rows(t_data *data, char *map)
 	free(map);
 }
 
+void map_fill(t_data *data, char *one_line, int i)
+{
+	check_gnl(data, one_line);
+	if(i == NORTH)
+		data->NO =  ft_strdup(one_line);
+	else if(i == SOUTH)
+		data->SO =  ft_strdup(one_line);
+	else if(i == WEST)
+		data->WE =  ft_strdup(one_line);
+	else if(i == EAST)
+		data->EA =  ft_strdup(one_line);
+	else if(i == FLOOR_COLOR)
+		data->F =  ft_strdup(one_line);
+}
+
 void *parser(t_data *data, char *filename)
 {
 	char *one_line;
@@ -429,30 +414,32 @@ void *parser(t_data *data, char *filename)
 	ft_bzero(data, sizeof(t_data));
 	//init_data(data);
 	//write(1, "0", 1);
-	while (get_next_line(fd, &data->line))
+	while (get_next_line(fd, &one_line))
 	{
 		//write(1, "1", 1);
-		printf("%s\n", data->line);
-		fflush(NULL);
-		if (data->line != '\0' && ++i <= CEILING_COLOR)
+		// printf("%s\n", one_line);
+		// fflush(NULL);
+		if (++i <= CEILING_COLOR)
 		{
-			data->map.info_map[check_gnl(data)] = ft_strdup(data->line);
+			map_fill(data, one_line, i);
 		}
-		else if (data->line != '\0')
+			//data->map.info_map[check_gnl(data, one_line)] = ft_strdup(one_line);
+		else if (one_line != '\0')
 		{
 			tmp_map = map;
 			if (!map)
-				map = ft_strdup(data->line);
+				map = ft_strdup(one_line);
 			else
 			{
-				map = ft_strjoin(map, data->line);
+				map = ft_strjoin(map, one_line);
 				map = ft_strjoin(map, "\n");
 			}
 			free(tmp_map);
 			data->map.cols++;
 		}
-		free(data->line);
+		free(one_line);
 	}
+	free(one_line);
 	split_map_get_rows(data, map);
 	print_data(data);
 	return(NULL);
