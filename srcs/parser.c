@@ -259,7 +259,7 @@ char	**ft_split(char const *s, char c)
 }
 
 
-/////////////////////////
+///////////////////////////////
 
 
 void print_data(t_data *data)
@@ -290,6 +290,11 @@ void print_data(t_data *data)
 		printf("EA : NULL\n");
 	printf("Floor RGB : %d %d %d\n", data->F[0], data->F[1], data->F[2]);
 	printf("Ceiling RGB : %d %d %d\n", data->C[0], data->C[1], data->C[2]);
+	int i = 0;
+	while (data->map.map[i++])
+	{
+		printf("%s\n", data->map.map[i]);
+	}
 	// if (cub->id_done == true)
 	// 	printf("ID done and valid? : Yes\n");
 	// else
@@ -328,11 +333,11 @@ void	*var_malloc(size_t size)
 
 int		overlap_error(t_data *data, int type)
 {
-	if (data->map->info_check[type] == type)
+	if (data->map.info_check[type - 1] == type)
 		error_exit("overlap error");
 	else
-		data->map->info_check[type] = type;
-	return (type);
+		data->map.info_check[type - 1] = type;
+	return (type - 1);
 }
 
 int		check_gnl(t_data *data)
@@ -364,19 +369,19 @@ int		isformat(char *s1, char *s2)
 	return (!ft_strcmp(s1 + (s1_ln - s2_ln), s2));
 }
 //указатели на название NO/SO/WE/EA и вариации цвета пола и потолка
-void	init_data(t_data *data)
-{
-	data->NO = NULL;
-	data->SO = NULL;
-	data->WE = NULL;
-	data->EA = NULL;
-	data->F[0] = 0;
-	data->F[1] = 0;
-	data->F[2] = 0;
-	data->C[0] = 0;
-	data->C[1] = 0;
-	data->C[2] = 0;
-}
+// void	init_data(t_data *data)
+// {
+// 	data->NO = NULL;
+// 	data->SO = NULL;
+// 	data->WE = NULL;
+// 	data->EA = NULL;
+// 	data->F[0] = 0;
+// 	data->F[1] = 0;
+// 	data->F[2] = 0;
+// 	data->C[0] = 0;
+// 	data->C[1] = 0;
+// 	data->C[2] = 0;
+// }
 
 void	exit_failure(t_data *data, char *error)
 {
@@ -396,47 +401,61 @@ void	split_map_get_rows(t_data *data, char *map)
 	int	i;
 
 	i = -1;
-	data->map->rows = (int*)var_malloc(sizeof(int) * data->map->cols);
-	data->map->map = ft_split(map, '\n');
-	while (++i < data->map->cols)
-		data->map->rows[i] = (int)ft_strlen(data->map->map[i]);
+	data->map.rows = (int*)var_malloc(sizeof(int) * data->map.cols);
+	data->map.map = ft_split(map, '\n');
+	while (++i < data->map.cols - 1)
+		data->map.rows[i] = (int)ft_strlen(data->map.map[i]);
 	i = -1;
-	data->map->map_mask = (int**)var_malloc(sizeof(int*) * data->map->cols);
-	while (++i < data->map->cols)
-		data->map->map_mask[i] = (int*)var_malloc(sizeof(int) * data->map->rows[i]);
+	data->map.map_mask = (int**)var_malloc(sizeof(int*) * data->map.cols);
+	while (++i < data->map.cols - 1)
+		data->map.map_mask[i] = (int*)var_malloc(sizeof(int) * data->map.rows[i]);
 	free(map);
 }
 
-t_data *parser(t_data *data, char *filename)
+void *parser(t_data *data, char *filename)
 {
 	char *one_line;
-	int i = -1;
+	int i = 0;
 	char *tmp_map;
 	char *map = 0;
+	int fd;
 
-	if((data->fd = open(filename, O_RDONLY)) < 0 || !isformat(filename, ".cub"))
-		exit_failure(data, "Sorry, filename could not be found or extension is not valid");
-	ft_bzero(&data, sizeof(t_data));
-	init_data(data);
-	while (get_next_line(data->fd, &data->line))
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+		exit_failure(data, "1. Sorry, filename could not be found");
+	if(!isformat(filename, ".cub"))
+		exit_failure(data, "2. Sorry, extension is not valid");
+	//data = (t_data *)malloc(sizeof(t_data));
+	ft_bzero(data, sizeof(t_data));
+	//init_data(data);
+	//write(1, "0", 1);
+	while (get_next_line(fd, &data->line))
 	{
+		//write(1, "1", 1);
+		printf("%s\n", data->line);
+		fflush(NULL);
 		if (data->line != '\0' && ++i <= CEILING_COLOR)
-			data->map->info_map[check_gnl(data)] = ft_strdup(data->line);
+		{
+			data->map.info_map[check_gnl(data)] = ft_strdup(data->line);
+		}
 		else if (data->line != '\0')
 		{
 			tmp_map = map;
 			if (!map)
 				map = ft_strdup(data->line);
 			else
+			{
 				map = ft_strjoin(map, data->line);
+				map = ft_strjoin(map, "\n");
+			}
 			free(tmp_map);
-			data->map->cols++;
+			data->map.cols++;
 		}
 		free(data->line);
-		split_map_get_rows(data, map);
-		print_data(data);
 	}
-	return(data);
+	split_map_get_rows(data, map);
+	print_data(data);
+	return(NULL);
 }
 
 int main(int ac, char **av)
