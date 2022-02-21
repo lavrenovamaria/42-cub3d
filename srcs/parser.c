@@ -129,6 +129,37 @@ char	*ft_strjoin(char const *str1, char const *str2)
 	return (res);
 }
 
+static int	ft_isspace(int c)
+{
+	if (c == ' ' || c == '\t' || c == '\n'\
+			|| c == '\v' || c == '\f' || c == '\r')
+		return (1);
+	return (0);
+}
+
+int	ft_atoi(const char *str)
+{
+	int	res;
+	int	i;
+
+	res = 0;
+	i = 1;
+	while (ft_isspace(*str))
+		str++;
+	if (*str == '-' || *str == '+')
+	{
+		if (*str == '-')
+			i = -1;
+		str++;
+	}
+	while (*str >= '0' && *str <= '9')
+	{
+		res = res * 10 + (*str - 48);
+		++str;
+	}
+	return (res * i);
+}
+
 size_t	ft_strlcat(char *dst, const char *src, size_t size)
 {
 	size_t	s_len;
@@ -384,6 +415,9 @@ void	split_map_get_rows(t_data *data, char *map)
 
 void map_fill(t_data *data, char *one_line, int i)
 {
+	int j = 0;
+	char	**tmp_split;
+
 	check_gnl(data, one_line);
 	if(i == NORTH)
 		data->NO =  ft_strdup(one_line);
@@ -393,8 +427,15 @@ void map_fill(t_data *data, char *one_line, int i)
 		data->WE =  ft_strdup(one_line);
 	else if(i == EAST)
 		data->EA =  ft_strdup(one_line);
-	else if(i == FLOOR_COLOR)
-		data->F =  ft_strdup(one_line);
+	// else if(i == FLOOR_COLOR)
+	// {
+	// 	tmp_split = ft_split(one_line, ',');
+	// 	while(j++ < 3)
+	// 			data->F[j] = ft_atoi(tmp_split[j]);
+	// }
+
+
+
 }
 
 void *parser(t_data *data, char *filename)
