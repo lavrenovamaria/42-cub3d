@@ -55,5 +55,7 @@ typedef struct	s_data
 	char			*WE;
 	char			*EA;
 	int				F[3];
+	int				f_colors;
 	int				C[3];
+	int				c_colors;
 }				t_data;

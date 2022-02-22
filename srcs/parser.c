@@ -203,6 +203,30 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	ft_strlcpy(str, (s + start), len + 1);
 	return (str);
 }
+char	*ft_strchr(const char *str, int ch)
+{
+	while (*str != (char)ch)
+		if (!*str++)
+			return (0);
+	return ((char *)str);
+}
+char	*ft_strtrim(char const *s, char const *set)
+{
+	char	*str;
+	size_t	len;
+
+	if (!s)
+		return (NULL);
+	while (ft_strchr(set, *s) != 0 && *s)
+		s++;
+	len = ft_strlen(s);
+	while (ft_strchr(set, s[len]) != 0 && len > 0)
+		len--;
+	str = ft_substr(s, 0, len + 1);
+	if (!str)
+		return (NULL);
+	return (str);
+}
 size_t	ft_nbr_word(const char *str, char c)
 {
 	size_t	count;
@@ -369,6 +393,8 @@ int		check_gnl(t_data *data, char *one_line)
 		return (overlap_error(data, FLOOR_COLOR));
 	else if (!ft_strncmp(one_line, "C ", 2))
 		return (overlap_error(data, CEILING_COLOR));
+	else if (one_line[0] == 0)
+		return (7);
 	else
 		error_exit("invalid map info");
 	return (-1);
@@ -413,12 +439,27 @@ void	split_map_get_rows(t_data *data, char *map)
 	free(map);
 }
 
-void map_fill(t_data *data, char *one_line, int i)
+int	num_size(int num)
+{
+	int	size;
+
+	size = 1;
+	while (num / 10 != 0)
+	{
+		num = num / 10;
+		size++;
+	}
+	size++;
+	return (size);
+}
+
+int map_fill(t_data *data, char *one_line, int i)
 {
 	int j = 0;
 	char	**tmp_split;
 
-	check_gnl(data, one_line);
+	if (check_gnl(data, one_line) == 7)
+		return (1);
 	if(i == NORTH)
 		data->NO =  ft_strdup(one_line);
 	else if(i == SOUTH)
@@ -427,21 +468,90 @@ void map_fill(t_data *data, char *one_line, int i)
 		data->WE =  ft_strdup(one_line);
 	else if(i == EAST)
 		data->EA =  ft_strdup(one_line);
-	// else if(i == FLOOR_COLOR)
-	// {
-	// 	tmp_split = ft_split(one_line, ',');
-	// 	while(j++ < 3)
-	// 			data->F[j] = ft_atoi(tmp_split[j]);
-	// }
+	else if(i == FLOOR_COLOR)
+	{
+		//tmp_split = ft_split(one_line, ',');
+		//while(j++ < 3)
+		//		data->F[j] = ft_atoi(tmp_split[j]);
+		while (one_line[j] < 48 || one_line[j] > 57)
+			j++;
+		data->F[0] = ft_atoi(&one_line[j]);
+		j+= num_size(data->F[0]);
+		data->F[1] = ft_atoi(&one_line[j]);
+		j+= num_size(data->F[1]);
+		data->F[2] = ft_atoi(&one_line[j]);
+	}
+	else if(i == CEILING_COLOR)
+	{
+		//tmp_split = ft_split(one_line, ',');
+		//while(j++ < 3)
+		//		data->F[j] = ft_atoi(tmp_split[j]);
+		while (one_line[j] < 48 || one_line[j] > 57)
+			j++;
+		data->C[0] = ft_atoi(&one_line[j]);
+		j+= num_size(data->C[0]);
+		data->C[1] = ft_atoi(&one_line[j]);
+		j+= num_size(data->C[1]);
+		data->C[2] = ft_atoi(&one_line[j]);
+	}
+	return (0);
+}
 
-
-
+int	map_check(t_data *data)
+{
+	int 	i;
+	int 	j;
+	int		length;
+	char	*tmp_map;
+	
+	i = 1;
+	j = 0;
+	while (data->map.map[0][j] != '\0')
+	{
+		while (data->map.map[0][j] == ' ')
+			j++;
+		if (data->map.map[0][j] == '\n')
+			break ;
+		if (data->map.map[0][j] != '1')
+		{
+			printf("wrong map error 1\n");
+			return (1);
+		}
+		j++;
+	}
+	while (data->map.map[i] != NULL)
+	{
+		tmp_map = ft_strtrim(data->map.map[i], "\t ");
+		j = ft_strlen(tmp_map);
+		//printf("length = %d\n", j);
+		//printf("string: %s\n0 and last elsem: %c and %c\n", tmp_map, tmp_map[0], tmp_map[j - 1]);
+		if (tmp_map[0] != '1' || tmp_map[j - 1] != '1')
+		{
+			printf("wrong map error in %d string\n", i + 1);
+			return (1);
+		}
+		i++;
+	}
+	while (data->map.map[i - 1][j] != '\0')
+	{
+		while (data->map.map[i - 1][j] == ' ')
+			j++;
+		if (data->map.map[i - 1][j] == '\n')
+			break ;
+		if (data->map.map[i - 1][j] != '1')
+		{
+			printf("wrong map error 1\n");
+			return (1);
+		}
+		j++;
+	}
+	return (0);
 }
 
 void *parser(t_data *data, char *filename)
 {
 	char *one_line;
-	int i = 0;
+	int i = 1;
 	char *tmp_map;
 	char *map = 0;
 	int fd;
@@ -460,9 +570,10 @@ void *parser(t_data *data, char *filename)
 		//write(1, "1", 1);
 		// printf("%s\n", one_line);
 		// fflush(NULL);
-		if (++i <= CEILING_COLOR)
+		if (i <= CEILING_COLOR)
 		{
-			map_fill(data, one_line, i);
+			if (map_fill(data, one_line, i) == 0)
+				i++;
 		}
 			//data->map.info_map[check_gnl(data, one_line)] = ft_strdup(one_line);
 		else if (one_line != '\0')
@@ -471,10 +582,8 @@ void *parser(t_data *data, char *filename)
 			if (!map)
 				map = ft_strdup(one_line);
 			else
-			{
 				map = ft_strjoin(map, one_line);
-				map = ft_strjoin(map, "\n");
-			}
+			map = ft_strjoin(map, "\n");
 			free(tmp_map);
 			data->map.cols++;
 		}
@@ -482,6 +591,7 @@ void *parser(t_data *data, char *filename)
 	}
 	free(one_line);
 	split_map_get_rows(data, map);
+	map_check(data);
 	print_data(data);
 	return(NULL);
 }
