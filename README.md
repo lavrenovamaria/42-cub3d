@@ -16,7 +16,7 @@ Devil with that deadlines and your f-ing work-life balance, Karen \
 
 Из чего состоит конфигурационный файл(папка maps, расширение .cub):  
 ```
-NO ./assets/WALL.xpm(Текстура северная)
+NO ./assets/WALL.xpm(Текстура северная) 
 SO ./assets/WALL.xpm(Текстура южная)
 WE ./assets/WALL.xpm(Текстура западная)
 EA ./assets/WALL.xpm(Текстура восточная)
