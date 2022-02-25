@@ -1,5 +1,4 @@
 # 42-cub3d
-```Compile in /srcs with gcc parser.c main.c gnl/get_next_line.c gnl/get_next_line_utils.c  -Lmlx -lmlx -framework OpenGL -framework Appkit -o main``` \
 Devil with that deadlines and your f-ing work-life balance, Karen \
 Что по [сабжу](https://github.com/lavrenovamaria/42-cub3d/files/8080052/en.subject.pdf):
 1. Разрешенные функции - open, close, read, write, printf, malloc, free, perror, strerror, exit, все функции либы math и либы minilibx
@@ -15,7 +14,7 @@ Devil with that deadlines and your f-ing work-life balance, Karen \
 11. Карта должна быть распарсена(распаршена?) так, как она представлена в файле. Пробелы являются допустимой частью карты и их обработка на ваше усмотрение. Вы должны иметь возможность парсить карту любого типа, если она соответствует правилам карты.
 12. Если в файле обнаружена какая-либо неверная конфигурация любого рода, программа должна корректно завершить работу и вернуть "Error\n", за которым следует явное сообщение об ошибке на ваш выбор.
 
-Из чего состоит конфигурационный файл(папка maps, расширение .cub):     
+Из чего состоит конфигурационный файл(папка maps, расширение .cub):  
 ```
 NO ./assets/WALL.xpm(Текстура северная)
 SO ./assets/WALL.xpm(Текстура южная)

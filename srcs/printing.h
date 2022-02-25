@@ -13,6 +13,10 @@
 # define FLOOR_COLOR 5
 # define CEILING_COLOR 6
 
+# define KEY_PRESS				2
+# define KEY_ESC				53
+# define MASK_KEY_PRESS			1L
+
 # include "mlx.h"
 # include <math.h>
 # include <stdio.h>
@@ -54,10 +58,6 @@ typedef struct s_data
 	char	*line;
 	double	pix_x;
 	double	pix_y;
-	double	x0;
-	double	y0;
-	double	x;
-	double	y;
 	t_map	map;
 	t_frame	frame;
 	t_vars	vars;
@@ -68,9 +68,9 @@ typedef struct s_data
 	char	*WE;
 	char	*EA;
 	int		F[3];
-	int		f_colors;
 	int		C[3];
-	int		c_colors;
+	int		f_color;
+	int		c_color;
 }				t_data;
 
 void *parser(t_data *data, char *filename);
