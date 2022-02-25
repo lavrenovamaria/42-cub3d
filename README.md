@@ -1,4 +1,5 @@
 # 42-cub3d
+```Compile in /srcs with gcc parser.c main.c gnl/get_next_line.c gnl/get_next_line_utils.c  -Lmlx -lmlx -framework OpenGL -framework Appkit -o main```
 Devil with that deadlines and your f-ing work-life balance, Karen \
 Что по [сабжу](https://github.com/lavrenovamaria/42-cub3d/files/8080052/en.subject.pdf):
 1. Разрешенные функции - open, close, read, write, printf, malloc, free, perror, strerror, exit, все функции либы math и либы minilibx
