@@ -1,5 +1,28 @@
-#include "../inc/parser.h"
+#include "printing.h"
 ///////////
+size_t	ft_strlcat(char *dst, const char *src, size_t size)
+{
+	size_t	s_len;
+	size_t	d_len;
+	size_t	offset;
+	size_t	src_i;
+
+	s_len = ft_strlen(src);
+	d_len = ft_strlen(dst);
+	offset = d_len;
+	src_i = 0;
+	if (size < d_len)
+		return (size + s_len);
+	while ((*(src + src_i)) && (src_i + d_len + 1 < size))
+	{
+		*(dst + offset) = (src[src_i]);
+		src_i++;
+		offset++;
+	}
+	*(dst + offset) = '\0';
+	return (d_len + s_len);
+}
+
 void	*ft_memset(void *str, int ch, size_t size_buff)
 {
 	char	*p;
@@ -160,32 +183,8 @@ int	ft_atoi(const char *str)
 	return (res * i);
 }
 
-size_t	ft_strlcat(char *dst, const char *src, size_t size)
-{
-	size_t	s_len;
-	size_t	d_len;
-	size_t	offset;
-	size_t	src_i;
 
-	s_len = ft_strlen(src);
-	d_len = ft_strlen(dst);
-	offset = d_len;
-	src_i = 0;
-	if (size < d_len)
-		return (size + s_len);
-	while ((*(src + src_i)) && (src_i + d_len + 1 < size))
-	{
-		*(dst + offset) = (src[src_i]);
-		src_i++;
-		offset++;
-	}
-	*(dst + offset) = '\0';
-	return (d_len + s_len);
-}
-	//const char *ext = ".jpeg";
-	//size_t xlen = strlen(ext);
-	//size_t slen = strlen(argv[1]);
-	//int found = strcmp(argv[1] + slen - xlen, ext) == 0;
+
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	char	*str;
@@ -381,6 +380,7 @@ int		overlap_error(t_data *data, int type)
 
 int		check_gnl(t_data *data, char *one_line)
 {
+	one_line = ft_strtrim(one_line, "\t ");
 	if (!ft_strncmp(one_line, "NO ", 3))
 		return (overlap_error(data, NORTH));
 	else if (!ft_strncmp(one_line, "SO ", 3))
@@ -413,6 +413,7 @@ int		isformat(char *s1, char *s2)
 void	exit_failure(t_data *data, char *error)
 {
 	//зафришить всё перед выходом?
+	(void) data;
 	if (error)
 	{
 		ft_putstr_fd("Error: ", STDERR_FILENO);
@@ -456,23 +457,20 @@ int	num_size(int num)
 int map_fill(t_data *data, char *one_line, int i)
 {
 	int j = 0;
-	char	**tmp_split;
+	//char	**tmp_split;
 
 	if (check_gnl(data, one_line) == 7)
 		return (1);
 	if(i == NORTH)
-		data->NO =  ft_strdup(one_line);
+		data->NO = ft_strtrim(one_line, "\t NO");
 	else if(i == SOUTH)
-		data->SO =  ft_strdup(one_line);
+		data->SO = ft_strtrim(one_line, "\t SO");
 	else if(i == WEST)
-		data->WE =  ft_strdup(one_line);
+		data->WE = ft_strtrim(one_line, "\t WE");
 	else if(i == EAST)
-		data->EA =  ft_strdup(one_line);
+		data->EA = ft_strtrim(one_line, "\t EA");
 	else if(i == FLOOR_COLOR)
 	{
-		//tmp_split = ft_split(one_line, ',');
-		//while(j++ < 3)
-		//		data->F[j] = ft_atoi(tmp_split[j]);
 		while (one_line[j] < 48 || one_line[j] > 57)
 			j++;
 		data->F[0] = ft_atoi(&one_line[j]);
@@ -483,9 +481,6 @@ int map_fill(t_data *data, char *one_line, int i)
 	}
 	else if(i == CEILING_COLOR)
 	{
-		//tmp_split = ft_split(one_line, ',');
-		//while(j++ < 3)
-		//		data->F[j] = ft_atoi(tmp_split[j]);
 		while (one_line[j] < 48 || one_line[j] > 57)
 			j++;
 		data->C[0] = ft_atoi(&one_line[j]);
@@ -501,14 +496,15 @@ int	map_check(t_data *data)
 {
 	int 	i;
 	int 	j;
-	int		length;
+	//int		length;
 	char	*tmp_map;
 	
 	i = 1;
 	j = 0;
+	//проверка на замкнутость мапы
 	while (data->map.map[0][j] != '\0')
 	{
-		while (data->map.map[0][j] == ' ')
+		while (data->map.map[0][j] == ' ' || data->map.map[0][j] == '\t')
 			j++;
 		if (data->map.map[0][j] == '\n')
 			break ;
@@ -532,6 +528,7 @@ int	map_check(t_data *data)
 		}
 		i++;
 	}
+	j = 0;
 	while (data->map.map[i - 1][j] != '\0')
 	{
 		while (data->map.map[i - 1][j] == ' ')
@@ -540,11 +537,51 @@ int	map_check(t_data *data)
 			break ;
 		if (data->map.map[i - 1][j] != '1')
 		{
-			printf("wrong map error 1\n");
+			printf("wrong map error 2\n");
 			return (1);
 		}
 		j++;
 	}
+	//поиск лишних символов
+	i = 0;
+	while (data->map.map[i] != NULL)
+	{
+		j = 0;
+		while (data->map.map[i][j] == ' ' || data->map.map[i][j] == '\t')
+			j++;
+		if (data->map.map[i][j] == '\0')
+			return(1);
+		while (data->map.map[i][j] != '\0')
+		{
+			//уменьшить это условие, а то мне лень))
+			if (data->map.map[i][j] != '1' && data->map.map[i][j] != '0' && data->map.map[i][j] != 'N' && data->map.map[i][j] != 'S' && data->map.map[i][j] != 'W' && data->map.map[i][j] != 'E' && data->map.map[i][j] != ' ')
+			{
+				printf("wrong symbol in %d string in %d elem\n", i + 1, j + 1);
+				return (1);
+			}
+			j++;
+		}
+		i++;
+	}
+	//удаление табов, добавление пробелов
+	i = 0;
+	char	*spaces;
+	int		cnt;
+	spaces = ft_strdup("    ");
+	while (data->map.map[i] != NULL)
+	{
+		cnt = 0;
+		while (data->map.map[i][cnt] == '\t')
+			cnt++;
+		data->map.map[i] = ft_strtrim(data->map.map[i], "\t");
+		while (cnt > 0)
+		{
+			data->map.map[i] = ft_strjoin(spaces, data->map.map[i]);
+			cnt--;
+		}
+		i++;
+	}
+	free (tmp_map);
 	return (0);
 }
 
@@ -561,21 +598,14 @@ void *parser(t_data *data, char *filename)
 		exit_failure(data, "1. Sorry, filename could not be found");
 	if(!isformat(filename, ".cub"))
 		exit_failure(data, "2. Sorry, extension is not valid");
-	//data = (t_data *)malloc(sizeof(t_data));
 	ft_bzero(data, sizeof(t_data));
-	//init_data(data);
-	//write(1, "0", 1);
 	while (get_next_line(fd, &one_line))
 	{
-		//write(1, "1", 1);
-		// printf("%s\n", one_line);
-		// fflush(NULL);
 		if (i <= CEILING_COLOR)
 		{
 			if (map_fill(data, one_line, i) == 0)
 				i++;
 		}
-			//data->map.info_map[check_gnl(data, one_line)] = ft_strdup(one_line);
 		else if (one_line != '\0')
 		{
 			tmp_map = map;
@@ -591,20 +621,60 @@ void *parser(t_data *data, char *filename)
 	}
 	free(one_line);
 	split_map_get_rows(data, map);
-	map_check(data);
-	print_data(data);
+	if (map_check(data) != 0)
+		return (NULL);
+	//print_data(data);
 	return(NULL);
 }
 
-int main(int ac, char **av)
-{
-	t_data data;
-	char *file = av[1];
+//void	my_mlx_pixel_put(t_frame *img, int x, int y, int color)
+//{
+//	char	*dst;
+//
+//	dst = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
+//	*(unsigned int *)dst = color;
+//}
 
-	if(ac != 2)
-		exit_failure(&data, "Wrong number of arguments");
-	if(parser(&data, file))
-		printf("yes");
-	return(0);
-}
+//int main(int ac, char **av)
+//{
+//	t_data data;
+//	char *file = av[1];
+//
+//	if(ac != 2)
+//		exit_failure(&data, "Wrong number of arguments");
+//	if(parser(&data, file))
+//		printf("yes");
+//
+//	t_vars		mlx;
+//	t_frame		img;;
+//
+//	mlx.mlx = mlx_init();
+//	mlx.win = mlx_new_window(mlx.mlx, W, H, "test");
+//	img.img = mlx_new_image(mlx.mlx, W, H);
+//	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
+//	data.frame = img;
+//	data.vars = mlx;
+//	//printing(&addr, &img, 0);
+//	data.width = 0;
+//	data.height = 0;
+//	while (data.height < H)
+//	{
+//		while (data.width < W)
+//		{
+//			if (data.height < H / 2)
+//				my_mlx_pixel_put(&img, data.width, data.height, 0x0000ff);
+//			else
+//				my_mlx_pixel_put(&img, data.width, data.height, 0x00ff00);
+//			data.width++;
+//		}
+//		data.width = 0;
+//		data.height++;
+//	}
+//	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
+//	//mlx_key_hook(mlx.win, color_chng, &addr);
+//	//mlx_mouse_hook(mlx.win, zoomchng, &addr);
+//	//mlx_hook(mlx.win, 17, 1L << 17, ft_close, &mlx);
+//	//mlx_loop(mlx.mlx);
+//	return(0);
+//}
 
