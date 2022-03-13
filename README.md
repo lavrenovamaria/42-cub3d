@@ -162,9 +162,7 @@ x_event - событие, определенное в библиотеке X11. 
  # define SOUTH 1
  # define WEST 2
  # define EAST 3
- # define SPRITE 4
- # define RESOLUTION 5
- # define FLOOR_COLOR 6
- # define CEILING_COLOR 7
+ # define FLOOR_COLOR 4
+ # define CEILING_COLOR 5
 ```
 
