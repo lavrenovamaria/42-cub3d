@@ -48,7 +48,6 @@ void	ft_putendl_fd(char *s, int fd);
 int		ft_tolower(int n);
 int		ft_toupper(int n);
 int		ft_strncmp(const char *str1, const char *str2, size_t count_size);
-int		ft_strcmp(const char *s1, const char *s2);
 size_t	ft_strlcat(char *dst, const char *src, size_t size);
 size_t	ft_strlcpy(char *dst, const char *src, size_t size);
 size_t	ft_strlen(const char *ltr);

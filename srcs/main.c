@@ -1,100 +1,98 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wrickard <wrickard@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/21 18:29:26 by wrickard          #+#    #+#             */
+/*   Updated: 2022/03/21 18:30:38 by wrickard         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "printing.h"
 
-void	my_mlx_pixel_put(t_frame *img, int x, int y, int color)
+int	main_loop(t_data *data)
 {
-	char	*dst;
-
-	dst = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
-	*(unsigned int *)dst = color;
-}
-
-int	close_window(t_vars *vars)
-{
-	write(1, "Exit\n", 5);
-	mlx_destroy_window(vars->mlx, vars->win);
-	exit(0);
-	return 0;
-}
-
-int	keyboard_hook(t_vars *vars)
-{
-	close_window(vars);
-	return(0);
-}
-
-int	colorize(t_data *data, int i)
-{
-	if(i == 1)
+	print_back(data, &data->frame);
+	key_update(data);
+	data->pix_x = 0;
+	while (data->pix_x < W)
 	{
-		data->c_color = data->C[0] << 16;
-		data->c_color |= data->C[1] << 8;
-		data->c_color |= data->C[2];
-		return (data->c_color);
+		calc_step_and_dist(data);
+		sam_dda_algos(data);
+		data->pix_x++;
 	}
-	else if(i == 2)
-	{
-		data->f_color = data->F[0] << 16;
-		data->f_color |= data->F[1] << 8;
-		data->f_color |= data->F[2];
-		return (data->f_color);
-	}
-	return(0);
+	mlx_put_image_to_window(data->vars.mlx, \
+		data->vars.win, data->frame.img, 0, 0);
+	return (0);
 }
 
-void	print_back(t_data *addr, t_frame *img)
+t_vars	mlx_in(void)
 {
-	addr->pix_y = 0;
-	addr->pix_x = 0;
-	while (addr->pix_y < H)
+	t_vars	mlx;
+
+	mlx.mlx = mlx_init();
+	mlx.win = mlx_new_window(mlx.mlx, W, H, "cub3d yay");
+	return (mlx);
+}
+
+t_frame	img_in(t_vars mlx)
+{
+	t_frame	img;
+
+	img.img = mlx_new_image(mlx.mlx, W, H);
+	img.addr = mlx_get_data_addr(img.img, &img.bpp, &img.ll, &img.endian);
+	return (img);
+}
+
+int	**mall(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	data->textures = (int **)malloc(sizeof(int *) * 4);
+	if (!data->textures)
 	{
-		while (addr->pix_x < W)
+		ft_putstr_fd("Error\nmalloc error\n", 2);
+		exit (1);
+	}
+	while (i < 4)
+	{
+		data->textures[i] = (int *)malloc(sizeof(int) * (T_W * T_H));
+		if (!data->textures[i])
 		{
-			if (addr->pix_y < H / 2)
-				my_mlx_pixel_put(img, addr->pix_x, addr->pix_y, colorize(addr, 1));
-			else
-				my_mlx_pixel_put(img, addr->pix_x, addr->pix_y, colorize(addr, 2));
-			addr->pix_x++;
+			ft_putstr_fd("Error\nmalloc error\n", 2);
+			exit (1);
 		}
-		addr->pix_x = 0;
-		addr->pix_y++;
+		i++;
 	}
+	return (data->textures);
 }
-
-// void init_img(t_vars mlx)
-// {
-
-// }
 
 int	main(int ac, char **av)
 {
-	t_frame		img;
-	t_vars		mlx;
-	t_data		addr;
+	t_data	data;
 
-	t_data data;
-	char *file = av[1];
-
-	if(ac != 2)
+	if (ac != 2)
 	{
-		printf("Wrong number of arguments");
+		printf("Error\nWrong number of arguments");
 		return (1);
 	}
-		//exit_failure(&data, "Wrong number of arguments");
-	if(parser(&data, file))
+	if (parser(&data, av[1]))
 		printf("yes");
-	mlx.mlx = mlx_init();
-	mlx.win = mlx_new_window(mlx.mlx, W, H, "test");
-	img.img = mlx_new_image(mlx.mlx, W, H);
-	img.addr = mlx_get_data_addr(img.img, &img.bits_per_pixel, &img.line_length, &img.endian);
-	addr.frame = img;
-	addr.vars = mlx;
-	//printing(&addr, &img, 0);
-	print_back(&data, &img);
-	//print_walls(&addr, &img);
-	mlx_put_image_to_window(mlx.mlx, mlx.win, img.img, 0, 0);
-	//mlx_key_hook(mlx.win, color_chng, &addr);
-	//mlx_mouse_hook(mlx.win, zoomchng, &addr);
-	//mlx_hook(mlx.win, KEY_PRESS, MASK_KEY_PRESS, keyboard_hook, &mlx);
-	mlx_loop(mlx.mlx);
+	data.vars = mlx_in();
+	data.frame = img_in(data.vars);
+	print_back(&data, &data.frame);
+	data.textures = mall(&data);
+	load_textures(&data);
+	data.pix_x = 0;
+	data.pix_y = 0;
+	main_loop(&data);
+	mlx_hook(data.vars.win, PRESS, 0, &key_press, &data);
+	mlx_hook(data.vars.win, RELEASE, 0, &key_release, &data);
+	mlx_hook(data.vars.win, 17, 0L, close_window, &data.vars);
+	mlx_loop_hook(data.vars.mlx, &main_loop, &data);
+	mlx_loop(data.vars.mlx);
 	return (0);
 }

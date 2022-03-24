@@ -208,7 +208,7 @@ int	mipng_data(mlx_img_list_t *img, unsigned char *dat, png_info_t *pi)
 	  b_pos += Z_CHUNK - z_strm.avail_out;
 	}
       dat += len + 4 + 4 + 4;
-    } 
+    }
   inflateEnd(&z_strm);
   if (b_pos != img->width*img->height*pi->bpp+img->height)
     {
@@ -247,7 +247,7 @@ int	mipng_crc(unsigned char *ptr, int len)
 
   file_crc = *((unsigned int *)(ptr+4+4+len));
   file_crc = ntohl(file_crc);
-  
+
   crc = 0xffffffffL;
   i = 0;
   while (i < len+4)

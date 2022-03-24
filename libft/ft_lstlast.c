@@ -6,15 +6,15 @@
 /*   By: wrickard <wrickard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/18 19:53:59 by wrickard          #+#    #+#             */
-/*   Updated: 2021/08/18 20:02:37 by wrickard         ###   ########.fr       */
+/*   Updated: 2022/03/21 19:05:05 by wrickard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-t_list *ft_lstlast(t_list *lst)
+t_list	*ft_lstlast(t_list *lst)
 {
-	while(lst)
+	while (lst)
 	{
 		if (!lst->next)
 			return (lst);

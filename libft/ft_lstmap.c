@@ -6,7 +6,7 @@
 /*   By: wrickard <wrickard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/18 20:24:04 by wrickard          #+#    #+#             */
-/*   Updated: 2021/08/18 20:29:47 by wrickard         ###   ########.fr       */
+/*   Updated: 2022/03/21 19:06:05 by wrickard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,10 @@ t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *))
 	if (!f || !del)
 		return (NULL);
 	new_lst = NULL;
-	while(lst)
+	new_elem = ft_lstnew(f(lst->content));
+	while (lst)
 	{
-		if (!(new_elem = ft_lstnew(f(lst->content))))
+		if (!new_elem)
 		{
 			ft_lstclear(&new_lst, del);
 			return (NULL);

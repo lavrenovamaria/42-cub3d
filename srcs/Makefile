@@ -1,31 +1,57 @@
-NAME = test.a
+NAME 	= cub3D
 
-SRCS = main.c parser.c
+LIBFT	= ../libft/libft.a
+LFT_DIR = ../libft
 
-OBJS = ${SRCS:.c=.o}
+HEADER  = printing.h
 
-HEADER = printing.h
+SRCS = 	parser.c \
+		main.c \
+		key.c \
+		key2.c \
+		choose.c \
+		parser_utils.c \
+		look_around.c \
+		func_for_mlx.c \
+		map_check.c \
+		map_fill.c \
+		map_check2.c \
+		some_calcs.c \
+		tex_load.c \
+		gnl/get_next_line.c \
+		gnl/get_next_line_utils.c
 
-CC = gcc
+CC = gcc $(GCC_FLAG)
+GCC_FLAG = -Wall -Werror -Wextra -g -I ./ -I ../
 
-RM = rm -f
+OBJS = $(SRCS:.c=.o)
 
-CFLAGS = -Wall -Wextra -Werror
+RM	= rm -rf
 
-.c.o:
-	${CC} ${CFLAGS} -c $< -o ${<:.c=.o} -I . -I ..
+all: libft minilibx $(NAME)
 
-$(NAME): ${OBJS} ${HEADER}
-	ar rcs $(NAME) $(OBJS)
-	ranlib $(NAME)
-	$(CC) $(CFLAGS) main.c $(NAME) -L mlx -lmlx -framework OpenGL -framework AppKit -o test
+libft:
+	make -C ${LFT_DIR}
 
-all: ${NAME}
+minilibx:
+	make -C minilibx/
+
+$(%.o): $(%.c)
+	$(CC) -o $@ -c $^
+
+$(NAME): $(OBJS)
+	$(CC) -o $@ $^ -Lminilibx/ -lmlx -framework OPENGL -framework Appkit -L../libft -lft
 
 clean:
-	${RM} ${OBJS}
+	rm -f $(OBJS)
+	make -C ../libft/ clean
+	make -C minilibx/ clean
 
 fclean: clean
-	${RM} ${NAME}  test
+	rm -f $(NAME)
+	make -C ../libft/ fclean
+	make -C minilibx/ clean
 
 re: fclean all
+
+.PHONY: libft minilibx
